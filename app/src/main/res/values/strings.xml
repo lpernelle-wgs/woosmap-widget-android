@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Simple Indoor Widget Example</string>
+    <string name="public_key">YOUR-PUBLIC-KEY</string>
+</resources>

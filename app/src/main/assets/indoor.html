@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Woosmap</title>
+  <meta charset="UTF-8" />
+  <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  />
+  <style>
+        #app,#map,body,html{height:100%}body,html{margin:0;padding:0}body{-webkit-user-select:none;-ms-user-select:none;user-select:none;background-repeat:no-repeat;background-attachment:fixed;background-size:37%;background-position:center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAAAXNSR0IArs4c6QAAIABJREFUeF7t3E/Ir2lZwPHr955z5kxnzpA0k38akTGlwkWkzcLoD5KRE4GBY4tRk1JaiCC0CQvCRQW5cNOyZTkDKoV/FoKMGxdBiBNKIUkJJZp/wmYUmTn/3jdeLRMsHc/vuu7nua/7M1Ar3+u578/1/PLbg3g4Ozs7C/8QIECAAAECSwkcBMBS+3ZZAgQIECDwTQEB4EUgQIAAAQILCgiABZfuygQIECBAQAB4BwgQIECAwIICAmDBpbsyAQIECBAQAN4BAgQIECCwoIAAWHDprkyAAAECBASAd4AAAQIECCwoIAAWXLorEyBAgAABAeAdIECAAAECCwoIgAWX7soECBAgQEAAeAcIECBAgMCCAgJgwaW7MgECBAgQEADeAQIECBAgsKCAAFhw6a5MgAABAgQEgHeAAAECBAgsKCAAFly6KxMgQIAAAQHgHSBAgAABAgsKCIAFl+7KBAgQIEBAAHgHCBAgQIDAggICYMGluzIBAgQIEBAA3gECBAgQILCggABYcOmuTIAAAQIEBIB3gAABAgQILCggABZcuisTIECAAAEB4B0gQIAAAQILCgiABZfuygQIECBAQAB4BwgQIECAwIICAmDBpbsyAQIECBAQAN4BAgQIECCwoIAAWHDprkyAAAECBASAd4AAAQIECCwoIAAWXLorEyBAgAABAeAdIECAAAECCwoIgAWX7soECBAgQEAAeAcIECBAgMCCAgJgwaW7MgECBAgQEADeAQIECBAgsKCAAFhw6a5MgAABAgQEgHeAAAECBAgsKCAAFly6KxMgQIAAAQHgHSBAgAABAgsKCIAFl+7KBAgQIEBAAHgHCBAgQIDAggICYMGluzIBAgQIEBAA3gECBAgQILCggABYcOmuTIAAAQIEBIB3gAABAgQILCggABZcuisTIECAAAEB4B0gQIAAAQILCgiABZfuygQIECBAQAB4BwgQIECAwIICAmDBpbsyAQIECBAQAN4BAgQIECCwoIAAWHDprkyAAAECBASAd4AAAQIECCwoIAAWXLorEyBAgAABAeAdIECAAAECCwoIgAWX7soECBAgQEAAeAcIECBAgMCCAgJgwaW7MgECBAgQEADeAQIECBAgsKCAAFhw6a5MgAABAgQEgHeAAAECBAgsKCAAFly6KxMgQIAAAQHgHSBAgAABAgsKCIAFl+7KBAgQIEBAAHgHCBAgQIDAggICYMGluzIBAgQIEBAA3gECBAgQILCggABYcOmuTIAAAQIEBIB3gAABAgQILCggABZcuisTIECAAAEB4B0gQIAAAQILCgiABZfuygQIECBAQAB4BwgQIECAwIICAmDBpbsyAQIECBAQAN4BAgQIECCwoIAAWHDprkyAAAECBASAd4AAAQIECCwoIAAWXLorEyBAgAABAeAdIECAAAECCwoIgAWX7soECBAgQEAAeAcIECBAgMCCAgJgwaW7MgECBAgQEADeAQIECBAgsKCAAFhw6a5MgAABAgQEgHeAAAECBAgsKCAAFly6KxMgQIAAAQHgHSBAgAABAgsKCIAFl+7KBAgQIEBAAHgHCBAgQIDAggICYMGluzIBAgQIEBAA3gECBAgQILCggABYcOmuTIAAAQIEBIB3gAABAgQILCggABZcuisTIECAAAEB4B0gQIAAAQILCgiABZfuygQIECBAQAB4BwgQIECAwIICAmDBpbsyAQIECBAQAN4BAgQIECCwoIAAWHDprkyAAAECBASAd4AAAQIECCwoIAAWXLorEyBAgAABAeAdIECAAAECCwoIgAWX7soECBAgQEAAeAcIECBAgMCCAgJgwaW7MgECBAgQEADeAQIECBAgsKCAAFhw6a5MgAABAgQEgHeAAAECBAgsKCAAFly6KxMgQIAAAQHgHSBAgAABAgsKCIAFl+7KBAgQIEBAAHgHCBAgQIDAggICYMGluzIBAgQIEBAA3gECBAgQILCggABYcOmuTIAAAQIEBIB3gAABAgQILCggABZcuisTIECAAAEB4B0gQIAAAQILCgiABZfuygQIECBAQAB4BwgQIECAwIICAmDBpbvyPgW+fO0svvL0WZzt83hHn+qHLhzix68e4nD0JAMIEMgQEAAZimYQSBD4yBdvxWNfuhU3mxbAfXce4vd+6lKcJFgZQYDA8QIC4HhDEwikCLznc7fiff92o20AvPCuQ7zrZy7HiU8AKe+LIQSOFRAAxwr6ewJJAgIgCdIYAgSekYAAeEZM/kUE6gUEQL2xJxAg8L8CAsDbQGAnAgJgJ4twDAKLCAiARRbtmvsXEAD735ETEugkIAA6bdNdphYQAFOvz+EJTCcg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)}
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="map" style="visibility: hidden;"></div>
+</div>
+</body>
+<script id="woosmapScriptTag" defer ></script>
+<script>
+    var apiKey = "{API_KEY}";
+    var source = "https://{DOMAIN}/map/map.js?libraries=widgets&key=" + apiKey;
+    source = source + "&callback=initMap";
+    document.getElementById("woosmapScriptTag").src = source;
+  </script>
+<script>
+
+    var WoosmapIndoorImpl = function (){
+      var mapIsLoaded = false;
+      var indoorWidget = null;
+      var indoorService = null;
+      var map = null;
+      var storesOverlay = {};
+      var markers = {};
+      function formatMessage(event,data,key = null){
+        let msgData= {"event":event, "data":data, "key":key};
+        return msgData;
+      }
+      return {
+        formatMessage: formatMessage,
+        setLanguage:function(language){
+          this.map.setLanguage(language);
+        },
+        initMap: function(){
+          document.querySelector("#map").style.visibility = "none";
+          this.mapConfiguration.gestureHandling = "greedy";
+          let worldMapConfig = this.mapConfiguration;
+          this.map = new window.woosmap.map.Map(document.getElementById("map"), worldMapConfig);
+          window.woosmap.map.config.setLanguage("{MAP_LANGUAGE}");
+          if(this.activateIndoor) {
+            this.mapIsLoaded = false;
+            const queryParams = new URLSearchParams(window.location.search);
+            if (queryParams.get("venue") != null) {
+              this.indoorRendererConfiguration.venue = queryParams.get("venue");
+            }
+            else{
+              document.querySelector("#map").style.visibility = "visible";
+            }
+            this.indoorWidget = new window.woosmap.map.IndoorWidget(this.indoorWidgetConfiguration, this.indoorRendererConfiguration);
+            this.indoorWidget.setMap(this.map);
+            this.indoorService = new window.woosmap.map.IndoorService();
+            let venueLoadedListener = this.indoorWidget.addListener(
+              "indoor_venue_loaded",
+              (venue) => {
+                mapIsLoaded = true;
+                document.querySelector("#map").style.visibility = "visible";
+                if(nativeWebView){
+                    nativeWebView.postMessage(JSON.stringify(formatMessage("indoor_venue_loaded",venue)));
+                }
+              }
+            );
+            let indoorlevelchanged = this.indoorWidget.addListener(
+              "indoor_level_changed",
+              (level) => {
+                if(nativeWebView){
+                    nativeWebView.postMessage(JSON.stringify(formatMessage("indoor_level_changed",level)));
+                }
+              }
+            );
+            let indoorfeatureselected = this.indoorWidget.addListener(
+              "indoor_feature_selected",
+              (feature) => {
+                if(nativeWebView){
+                    nativeWebView.postMessage(JSON.stringify(formatMessage("indoor_feature_selected",feature)));
+                }
+              }
+            );
+            let indooruserlocation = this.indoorWidget.addListener(
+              "indoor_user_location",
+              (newlocation) => {
+                if(nativeWebView){
+                    nativeWebView.postMessage(JSON.stringify(formatMessage("indoor_user_location",newlocation)));
+                }
+              }
+            );
+            let stepHighlightListener = this.indoorWidget.addListener(
+              "indoor_highlight_step",
+              (res) => {
+                if(nativeWebView){
+                    nativeWebView.postMessage(JSON.stringify(formatMessage("indoor_highlight_step",res)));
+                }
+              }
+            );
+          }
+          else{
+            document.querySelector("#map").style.visibility = "visible";
+          }
+          this.map.addListener("bounds_changed", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("bounds_changed",e)));
+            }
+          });
+          this.map.addListener("center_changed", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("center_changed",e)));
+            }
+          });
+          this.map.addListener("click", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("click",e)));
+            }
+          });
+          this.map.addListener("dblclick", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("dblclick",e)));
+            }
+          });
+          this.map.addListener("drag", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("drag",e)));
+            }
+          });
+          this.map.addListener("dragend", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("dragend",e)));
+            }
+          });
+          this.map.addListener("dragstart", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("dragstart",e)));
+            }
+          });
+          this.map.addListener("idle", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("idle",e)));
+            }
+          });
+          this.map.addListener("mousemove", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("mousemove",e)));
+            }
+          });
+          this.map.addListener("mouseout", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("mouseout",e)));
+            }
+          });
+          this.map.addListener("mouseover", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("mouseover",e)));
+            }
+          });
+          this.map.addListener("rightclick", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("rightclick",e)));
+            }
+          });
+          this.map.addListener("zoom_changed", (e) => {
+            if(nativeWebView){
+                nativeWebView.postMessage(JSON.stringify(formatMessage("zoom_changed",e)));
+            }
+          });
+          window.woosmap.map.event.addListener(this.map, "store_selected", (store) => {
+            if (nativeWebView) {
+                nativeWebView.postMessage(JSON.stringify(formatMessage("store_selected", store)));
+            }
+          });
+          window.woosmap.map.event.addListener(this.map, "store_unselected", (store) => {
+            if (nativeWebView) {
+                nativeWebView.postMessage(JSON.stringify(formatMessage("store_unselected", store)));
+            }
+          });
+          if(nativeWebView){
+            nativeWebView.postMessage(JSON.stringify(formatMessage("plugin_loaded",null)));
+          }
+        },
+        directions: function(parameters,ref){
+          let temporigin =parameters.origin;
+          let start = new window.woosmap.map.LatLng(temporigin.lat,temporigin.lng);
+          let tempdestination =parameters.destination;
+          let destination = new window.woosmap.map.LatLng(tempdestination.lat,tempdestination.lng);
+          parameters.origin = start;
+          parameters.destination = destination;
+          this.indoorService.directions(parameters,(result) => {
+            if(window.webkit.messageHandlers.nativeWebView){
+              window.webkit.messageHandlers.nativeWebView.postMessage(JSON.stringify(formatMessage("fn",result,ref)));
+            }
+          });
+        },
+        map: map,
+        storesOverlay: storesOverlay,
+        markers: markers,
+        indoorWidget:indoorWidget,
+        indoorService:indoorService,
+        activateIndoor:true,
+        mapConfiguration: {
+            center: { lat: 48.844437932920535, lng: 2.3743880269761393 },
+            zoom: 6,
+            gestureHandling:"greedy",
+          },
+        indoorRendererConfiguration:{
+          centerMap: true,
+          theme: 'woosmap_default',
+          defaultFloor: 0
+          {DEFAULT_VENUE}
+          {FORCE_EXTRUSION}
+        },
+        indoorWidgetConfiguration:{
+          ui: {
+              primaryColor: "#3D5AFE",
+              secondaryColor: "#F41F57",
+              tertiaryColor: "#FFAB39"
+            },
+          units: "metric"
+        },
+        getCenter:function() {
+            return JSON.stringify(this.map.getCenter());
+        },
+        getBounds:function(padding) {
+            return JSON.stringify(this.map.getBounds(padding));
+        },
+        fitBounds:function(bounds,padding) {
+            this.map.fitBounds(bounds,padding);
+        },
+        getBounds:function(padding) {
+            return JSON.stringify(this.map.getBounds(padding));
+        },
+        getHeading:function() {
+            return this.map.getHeading();
+        },
+        getTilt:function() {
+            return this.map.getTilt();
+        },
+        getZoom:function() {
+            return this.map.getZoom();
+        },
+        panBy:function(x,y) {
+            this.map.panBy(x,y);
+        },
+        panTo:function(latlng,padding) {
+            this.map.panTo(latlng,padding);
+        },
+        panToBounds:function(bound,padding) {
+            this.map.panToBounds(bound,padding);
+        },
+        setCenter:function(latlng,padding) {
+            this.map.setCenter(latlng,padding);
+        },
+        setHeading:function(heading) {
+            this.map.setHeading(heading);
+        },
+        setTilt:function(tilt) {
+            this.map.setTilt(tilt);
+        },
+        setZoom:function(zoom) {
+            this.map.setZoom(zoom);
+        },
+      };
+    };
+  const woosmap = WoosmapIndoorImpl();
+
+  function initMap(){
+    woosmap.initMap();
+  }
+
+  function setUserLocation(lat, lng, floor, bearing){
+    if (woosmap.indoorWidget){
+      woosmap.indoorWidget.setUserLocation(lat,lng,floor,bearing,false);
+    }
+  }
+
+  function setFloor(floor){
+    if (woosmap.indoorWidget){
+      woosmap.indoorWidget.setFloor(floor);
+    }
+  }
+
+  function setTilt(tilt){
+    if (woosmap.map){
+      woosmap.map.setTilt(tilt);
+    }
+  }
+  </script>
+</html>
