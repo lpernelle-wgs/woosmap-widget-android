@@ -28,6 +28,9 @@ public class IndoorWidgetHelper {
     private WebView contentView;
     private IndoorWidgetListener indoorWidgetListener;
     private TextToSpeech textToSpeech;
+    /**
+    * Gets a singleton object
+    * */
     public static IndoorWidgetHelper getInstance(Context context, WebView contentView){
         if (_instance == null){
             _instance = new IndoorWidgetHelper(context, contentView);
@@ -39,48 +42,64 @@ public class IndoorWidgetHelper {
         this.contentView = contentView;
         initializeTextToSpeech();
     }
+    /**
+     * The getter
+     * */
     public IndoorWidgetListener getIndoorWidgetListener() {
         return indoorWidgetListener;
     }
+    /**
+     * The setter
+     * */
     public void setIndoorWidgetListener(IndoorWidgetListener indoorWidgetListener) {
         this.indoorWidgetListener = indoorWidgetListener;
     }
 
+    /**
+    * Initializes the Indoor Widget with the default settings.
+    * */
     public void initializeIndoorMaps(){
         renderIndoorJSWidget(false);
     }
 
+    /**
+     * Re-initializes the Indoor Widget to show world map.
+     * */
     public void loadWorldMap(){
         renderIndoorJSWidget(true);
     }
 
+    /**
+    * Reads the content from the static html asset file and renders it on the given Webview.
+    **/
     private void renderIndoorJSWidget(boolean loadWorldMap){
         try{
             String pageContent = Utils.getTextContentFromAssetFile("indoor.html", context);
             String woosmapKey = context.getString(R.string.public_key);
             String defaultVenue = context.getString(R.string.default_venue);
             String forceExtrusion = context.getString(R.string.force_extrusion);
-            pageContent = pageContent.replace("{API_KEY}",woosmapKey);
-            pageContent = pageContent.replace("{MAP_LANGUAGE}", Locale.getDefault().getLanguage());
+            pageContent = pageContent.replace("{API_KEY}",woosmapKey); //Set the Woosmap public key
+            pageContent = pageContent.replace("{MAP_LANGUAGE}", Locale.getDefault().getLanguage()); //Set the language of the widget
 
             if (loadWorldMap){
+                // Do not set the default venue and extrusion if the world view needs to be loaded
                 pageContent = pageContent.replace("{DEFAULT_VENUE}", "");
                 pageContent = pageContent.replace("{FORCE_EXTRUSION}","");
             }
             else{
-                pageContent = pageContent.replace("{DEFAULT_VENUE}", !defaultVenue.isEmpty() ? ", venue: '" + defaultVenue + "'" : "");
-                pageContent = pageContent.replace("{FORCE_EXTRUSION}", !forceExtrusion.isEmpty()? ", forceExtrusion: " + forceExtrusion : "");
+                pageContent = pageContent.replace("{DEFAULT_VENUE}", !defaultVenue.isEmpty() ? ", venue: '" + defaultVenue + "'" : ""); //Set the default venue if available
+                pageContent = pageContent.replace("{FORCE_EXTRUSION}", !forceExtrusion.isEmpty()? ", forceExtrusion: " + forceExtrusion : ""); //Force the extrusion if available
             }
 
             contentView.setWebChromeClient(new WebChromeClient() {
                 @Override
                 public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                android.util.Log.d("WebView", consoleMessage.message());
-                return true;
+                    android.util.Log.d("WebView", consoleMessage.message());
+                    return true;
                 }
             });
             contentView.setWebViewClient(new WebViewClient());
-            contentView.addJavascriptInterface(new WebviewInterface(context), "nativeWebView");
+            contentView.addJavascriptInterface(new WebviewInterface(), "nativeWebView");
             contentView.clearCache(true);
             contentView.clearHistory();
             contentView.getSettings().setJavaScriptEnabled(true);
@@ -93,12 +112,15 @@ public class IndoorWidgetHelper {
         }
     }
 
+    /**
+     * Set the user location on the map using wevbiew's evaluateJavascript
+     * **/
     public void setUserLocation(double lat, double lng, int floor, Bundle extra) {
         contentView.post(() -> {
             float bearing = 0;
             if (extra.containsKey("location")){
                 Location location = extra.getParcelable("location");
-                if (location.hasBearing()){
+                if (location!= null && location.hasBearing()){
                     bearing = location.getBearing();
                 }
             }
@@ -106,6 +128,9 @@ public class IndoorWidgetHelper {
         });
     }
 
+    /**
+     * Change the indoor venue's floor
+     * **/
     public void changeFloor(int floor) {
         contentView.post(() -> {
             contentView.evaluateJavascript(String.format(Locale.ENGLISH, "setFloor(%d);", floor), value -> {
@@ -114,23 +139,27 @@ public class IndoorWidgetHelper {
         });
     }
 
+    /**
+     * Initialize TextToSpeech which will be used to speak out the navigation instructions
+     * */
     private void initializeTextToSpeech(){
-        textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS){
-                    int result = textToSpeech.setLanguage(Locale.getDefault());
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                        textToSpeech.setLanguage(Locale.ENGLISH);
-                    }
+        textToSpeech = new TextToSpeech(context, status -> {
+            if (status == TextToSpeech.SUCCESS){
+                int result = textToSpeech.setLanguage(Locale.getDefault());
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
+                    textToSpeech.setLanguage(Locale.ENGLISH);
                 }
-                else{
-                    Log.e(TAG, "Text to speech not initialized");
-                }
+            }
+            else{
+                Log.e(TAG, "Text to speech not initialized");
             }
         });
     }
 
+    /**
+     * Used to speak out indoor navigation instructions.
+     * Need to do this only on Android since Android webview does not support speech synthesis.
+     * */
     private void handleInstructionSpeech(JSONObject data){
         JSONObject feature;
         String instruction;
@@ -149,12 +178,12 @@ public class IndoorWidgetHelper {
         }
     }
 
+    /**
+     * A JavascriptInterface class which listens to the events raised by the Indoor Widget
+     * **/
     class WebviewInterface {
-        private Context context;
 
-        public WebviewInterface(Context context){
-            this.context = context;
-        }
+        public WebviewInterface(){}
 
         @JavascriptInterface
         public void postMessage(String data){

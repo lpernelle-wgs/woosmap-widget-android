@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        /// Initialze the Indoor Widget
         indoorWidgetHelper = IndoorWidgetHelper.getInstance(applicationContext, findViewById(R.id.web_view))
         indoorWidgetListener = object : IndoorWidgetListener {
             override fun onPluginLoaded(data: JSONObject) {
@@ -64,12 +65,19 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
     }
 
+    override fun onDestroy() {
+        if (locationProvider!=null){
+            locationProvider.destroy()
+        }
+        super.onDestroy()
+    }
+
     override fun onBackPressed() {
-        if (indoorVenueLoaded){
+        if (indoorVenueLoaded){ /// if an indoor venue is loaded then go back to loading the world map.
             indoorWidgetHelper.loadWorldMap()
             indoorVenueLoaded = false
         }
-        else{
+        else{ /// Else quit.
             super.onBackPressed()
         }
     }
@@ -103,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             REQUEST_FINE_LOCATION -> {
                 if (grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    // Access to fine location is granted. Now request background location access.
+                    // Location permissions are granted. Initialize the location provider
                     initializeLocationProvider()
                 } else {
                     Toast.makeText(this, "Fine location permission denied", Toast.LENGTH_SHORT).show()
@@ -112,6 +120,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Initialize the location provider.
+     * In our case we are using GPS.
+     * **/
     private fun initializeLocationProvider(){
         locationServiceListener = object : LocationServiceListener{
             override fun onLocationChanged(
@@ -121,10 +133,14 @@ class MainActivity : AppCompatActivity() {
                 accuracy: Float,
                 extra: Bundle?
             ) {
+                ///New location is reported by location provider.
+                ///Update it on the map.
                 indoorWidgetHelper.setUserLocation(lat, lng, floor, extra)
             }
 
             override fun onFloorChanged(floor: Int) {
+                ///Location provider detected floor change.
+                ///We will change the floor on the map.
                 indoorWidgetHelper.changeFloor(floor)
             }
 
@@ -149,6 +165,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onLocationServiceReady() {
+                ///Location provider is ready. We can start requesting location updates.
                 startLocationUpdates()
             }
 

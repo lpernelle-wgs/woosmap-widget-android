@@ -2,6 +2,9 @@ package com.woosmap.indoorwidgetexample.listeners;
 
 import org.json.JSONObject;
 
+/**
+ * Interface to raise events received from Indoor Widget
+ * */
 public interface IndoorWidgetListener {
     /**
      * Invoked when maps JS plugin in loaded.

@@ -7,6 +7,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * Utility methods class
+ * */
 public class Utils {
     public static String getTextContentFromAssetFile(String fileName, Context context) {
         BufferedReader reader = null;

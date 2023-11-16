@@ -1,7 +1,6 @@
 package com.woosmap.indoorwidgetexample.locationproviders;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -14,9 +13,12 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+/**
+ * A Location provider class that sticks to the structure provided by AbstractLocationProvider
+ * Uses GPS as location source
+ * */
 public class GPSLocationProvider extends AbstractLocationProvider {
     protected LocationCallback mLocationCallback;
-    protected PendingIntent mLocationIntent;
     protected LocationRequest mLocationRequest;
     protected FusedLocationProviderClient mFusedLocationClient;
     private Context context;
