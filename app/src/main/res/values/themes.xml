@@ -10,5 +10,5 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.SimpleIndoorWidgetExample" parent="Base.Theme.SimpleIndoorWidgetExampleWithActionBar" />
+    <style name="Theme.SimpleIndoorWidgetExample" parent="Base.Theme.SimpleIndoorWidgetExample" />
 </resources>

@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Simple Indoor Widget Example</string>
-    <string name="public_key">YOUR-PUBLIC-KEY</string>
+    <string name="public_key">YOUR-API-KEY</string>
+    <string name="default_venue">wgs</string>
+    <string name="force_extrusion">true</string>
 </resources>

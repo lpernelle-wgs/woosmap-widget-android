@@ -17,18 +17,16 @@ import com.woosmap.indoorwidgetexample.listeners.IndoorWidgetListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Locale;
-
+/**
+ * Helper class which encapsulates Woosmap Indoor Widget JS implementation in a Webview.
+ * */
 public class IndoorWidgetHelper {
     private static IndoorWidgetHelper _instance;
     private static final String TAG = "IndoorWidgetHelper";
     private Context context;
     private WebView contentView;
     private IndoorWidgetListener indoorWidgetListener;
-    private boolean indoorVenueLoaded;
     private TextToSpeech textToSpeech;
     public static IndoorWidgetHelper getInstance(Context context, WebView contentView){
         if (_instance == null){
@@ -49,19 +47,30 @@ public class IndoorWidgetHelper {
     }
 
     public void initializeIndoorMaps(){
-        renderIndoorJSWidget();
+        renderIndoorJSWidget(false);
     }
 
-    private void renderIndoorJSWidget(){
+    public void loadWorldMap(){
+        renderIndoorJSWidget(true);
+    }
+
+    private void renderIndoorJSWidget(boolean loadWorldMap){
         try{
-            String pageContent = getTextContentFromAssetFile("indoor.html");
+            String pageContent = Utils.getTextContentFromAssetFile("indoor.html", context);
             String woosmapKey = context.getString(R.string.public_key);
+            String defaultVenue = context.getString(R.string.default_venue);
+            String forceExtrusion = context.getString(R.string.force_extrusion);
             pageContent = pageContent.replace("{API_KEY}",woosmapKey);
-            pageContent = pageContent.replace("{DOMAIN}","sdk.woosmap.com");
             pageContent = pageContent.replace("{MAP_LANGUAGE}", Locale.getDefault().getLanguage());
 
-            pageContent = pageContent.replace("{DEFAULT_VENUE}","");
-            pageContent = pageContent.replace("{FORCE_EXTRUSION}","");
+            if (loadWorldMap){
+                pageContent = pageContent.replace("{DEFAULT_VENUE}", "");
+                pageContent = pageContent.replace("{FORCE_EXTRUSION}","");
+            }
+            else{
+                pageContent = pageContent.replace("{DEFAULT_VENUE}", !defaultVenue.isEmpty() ? ", venue: '" + defaultVenue + "'" : "");
+                pageContent = pageContent.replace("{FORCE_EXTRUSION}", !forceExtrusion.isEmpty()? ", forceExtrusion: " + forceExtrusion : "");
+            }
 
             contentView.setWebChromeClient(new WebChromeClient() {
                 @Override
@@ -78,7 +87,6 @@ public class IndoorWidgetHelper {
             contentView.getSettings().setMediaPlaybackRequiresUserGesture(false);
             contentView.setWebContentsDebuggingEnabled(true);
             contentView.loadDataWithBaseURL("http://" + context.getPackageName(), pageContent,"text/html","UTF-8", null);
-            indoorVenueLoaded = false;
         }
         catch (Exception ex){
             Log.e(TAG, ex.toString());
@@ -141,29 +149,6 @@ public class IndoorWidgetHelper {
         }
     }
 
-    private String getTextContentFromAssetFile(String fileName) {
-        BufferedReader reader = null;
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            reader = new BufferedReader(new InputStreamReader(context.getAssets().open(fileName)));
-            String mLine;
-            while ((mLine = reader.readLine()) != null) {
-                stringBuilder.append(mLine);
-            }
-        } catch (Exception ex) {
-            Log.e(TAG, ex.toString());
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //log the exception
-                }
-            }
-        }
-        return stringBuilder.toString();
-    }
-
     class WebviewInterface {
         private Context context;
 
@@ -177,7 +162,6 @@ public class IndoorWidgetHelper {
 
                 JSONObject jsonObject = new JSONObject(data);
                 if (jsonObject.getString("event").equalsIgnoreCase("indoor_venue_loaded")){
-                    indoorVenueLoaded = true;
                     indoorWidgetListener.onIndoorVenueLoaded(jsonObject.getJSONObject("data"));
                 }
                 if (jsonObject.getString("event").equalsIgnoreCase("plugin_loaded")){

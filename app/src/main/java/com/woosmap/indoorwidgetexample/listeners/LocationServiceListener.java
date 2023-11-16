@@ -14,5 +14,5 @@ public interface LocationServiceListener {
     void requiresBluetooth();
     void requiresWifi();
     void requiresCompassCalibration();
-    void requiresLocation();
+    void requiresLocationPermission();
 }

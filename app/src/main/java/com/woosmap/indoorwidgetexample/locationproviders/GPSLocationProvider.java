@@ -25,6 +25,11 @@ public class GPSLocationProvider extends AbstractLocationProvider {
     public void initialize(Bundle extras, Context context) {
         try {
             this.context = context;
+
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                getLocationServiceListener().requiresLocationPermission();
+                return;
+            }
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(1000);

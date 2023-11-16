@@ -3,18 +3,27 @@ package com.woosmap.indoorwidgetexample
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.woosmap.indoorwidgetexample.helpers.IndoorWidgetHelper
 import com.woosmap.indoorwidgetexample.listeners.IndoorWidgetListener
+import com.woosmap.indoorwidgetexample.listeners.LocationServiceListener
+import com.woosmap.indoorwidgetexample.locationproviders.AbstractLocationProvider
+import com.woosmap.indoorwidgetexample.locationproviders.GPSLocationProvider
 import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_FINE_LOCATION = 1
     private val TAG = "MainActivity"
+
     private lateinit var indoorWidgetHelper:IndoorWidgetHelper
     private lateinit var indoorWidgetListener: IndoorWidgetListener
+
     private var indoorVenueLoaded = false
+
+    private lateinit var locationProvider: AbstractLocationProvider
+    private lateinit var locationServiceListener: LocationServiceListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,12 +56,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        requestLocationPermissions();
+        requestLocationPermissions()
+    }
+
+    override fun onStop() {
+        stopLocationUpdates()
+        super.onStop()
     }
 
     override fun onBackPressed() {
         if (indoorVenueLoaded){
-            indoorWidgetHelper.initializeIndoorMaps();
+            indoorWidgetHelper.loadWorldMap()
+            indoorVenueLoaded = false
         }
         else{
             super.onBackPressed()
@@ -74,6 +89,95 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_FINE_LOCATION
             )
+        } else { // Location permissions are granted. Initialize the location provider
+            initializeLocationProvider()
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_FINE_LOCATION -> {
+                if (grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    // Access to fine location is granted. Now request background location access.
+                    initializeLocationProvider()
+                } else {
+                    Toast.makeText(this, "Fine location permission denied", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun initializeLocationProvider(){
+        locationServiceListener = object : LocationServiceListener{
+            override fun onLocationChanged(
+                lat: Double,
+                lng: Double,
+                floor: Int,
+                accuracy: Float,
+                extra: Bundle?
+            ) {
+                indoorWidgetHelper.setUserLocation(lat, lng, floor, extra)
+            }
+
+            override fun onFloorChanged(floor: Int) {
+                indoorWidgetHelper.changeFloor(floor)
+            }
+
+            override fun onVenueEntered(extra: Bundle?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onVenueExited(extra: Bundle?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onLocationError(error: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onExtraInfo(info: String?, extra: Bundle?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onUserOutsideVenue() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onLocationServiceReady() {
+                startLocationUpdates()
+            }
+
+            override fun requiresBluetooth() {
+                TODO("Not yet implemented")
+            }
+
+            override fun requiresWifi() {
+                TODO("Not yet implemented")
+            }
+
+            override fun requiresCompassCalibration() {
+                TODO("Not yet implemented")
+            }
+
+            override fun requiresLocationPermission() {
+                requestLocationPermissions()
+            }
+
+        }
+        locationProvider = GPSLocationProvider()
+        locationProvider.locationServiceListener = locationServiceListener
+        locationProvider.initialize(Bundle(), applicationContext)
+    }
+    private fun startLocationUpdates(){
+        locationProvider.startPositioning()
+    }
+
+    private fun stopLocationUpdates(){
+        locationProvider.stopPositioning()
     }
 }
